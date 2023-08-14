@@ -17,8 +17,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   MonthSalary.init({
-    month: DataTypes.FLOAT,
-    monthSalary: DataTypes.FLOAT
+    month: DataTypes.INTEGER,
+    year: DataTypes.INTEGER,
+    monthSalary: DataTypes.FLOAT,
+    deduction: DataTypes.FLOAT
   }, {
     sequelize,
     modelName: 'MonthSalary',

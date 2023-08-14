@@ -35,6 +35,7 @@ module.exports = (sequelize, DataTypes) => {
     birthday: DataTypes.DATE,
     join: DataTypes.DATE,
     token: DataTypes.STRING,
+    baseSalary: DataTypes.FLOAT,
   }, {
     sequelize,
     modelName: 'User',

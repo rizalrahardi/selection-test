@@ -6,9 +6,11 @@ const express = require('express')
 const cors = require('cors')
 const db = require('../src/models')
 
-const { attendance, auth, user } = require('../src/routes')
+const { attendance, auth, user, salary } = require('../src/routes');
 
 // db.sequelize.sync({ alter: true })
+
+
 
 const PORT = process.env.PORT || 8000;
 const app = express();
@@ -28,6 +30,7 @@ app.get("/api", (req, res) => {
 app.use('/api/attendance', attendance)
 app.use('/api/auth', auth)
 app.use('/api/user', user)
+app.use('/api/salary', salary)
 app.use('/api/public', express.static(path.resolve(__dirname, "../public")))
 
 

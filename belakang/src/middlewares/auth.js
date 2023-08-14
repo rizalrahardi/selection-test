@@ -1,54 +1,37 @@
 const jwt = require("jsonwebtoken");
-const db = require("../../models");
-const User = db.User;
+const { User } = require("../models");
+const { utils } = require("../services");
 
 const authMidleware = {
-     verifyToken : async (req, res, next) => {
+    verifyToken: async (req, res, next) => {
         let token = req.headers.authorization;
         if (!token) {
             return res.status(401).send("Access Denied!");
         }
-    
+
         try {
             token = token.split(" ")[1];
-    
+
             if (token === "null" || !token) {
                 return res.status(401).send("Access Denied!");
             }
-    
-            const verifiedUser = await jwt.verify(token, process.env.JWT_KEY);
-            if (!verifiedUser) {
-                return res.status(401).send("Unauthorized request");
-            }
-    
-            req.User = verifiedUser;
+
+            const verifiedUser = await utils.decodedToken(token);
+            req.user = verifiedUser;
+            console.log(req.user)
             next();
         } catch (err) {
             return res.status(400).send("Invalid Token");
         }
     },
-    
-     isVerified : async (req, res, next) => {
+
+    isAdmin: async (req, res, next) => {
         try {
-            const user = await User.findByPk(req.User.id);
-            if (!user) {
-                return res.status(404).send("User not found");
-            }
-            if (!user.isVerified) {
-                return res.status(400).send("User not verified, plese verify first");
-            }
-            next();
-        } catch (error) {
-            return res.status(500).send("Internal Server Error");
-        }
-    },
-    
-     isAdmin : async (req, res, next) => {
-        try {
-            const user = await User.findByPk(req.User.id);
-            const userRole = user.role
-            console.log('ini user role', userRole)
-            if (userRole !== "admin") {
+            const user = await User.findByPk(req.user.id);
+            console.log(user)
+            const userRole = user.roleId
+            console.log(userRole)
+            if (userRole !== 1) {
                 return res.status(403).json({ error: "user tidak diizinkan mengakses fitur admin" });
             }
             next();
@@ -57,13 +40,13 @@ const authMidleware = {
             return res.status(500).json({ error: 'Terjadi kesalahan saat memeriksa peran pengguna.' });
         }
     },
-    
-     isCashier : async (req, res, next) => {
+
+    isEmployee: async (req, res, next) => {
         try {
-            const user = await User.findByPk(req.User.id);
-            const userRole = user.role
-            if (userRole !== "cashier") {
-                return res.status(403).json({ error: "user tidak diizinkan mengakses fitur cashier" });
+            const user = await User.findByPk(req.user.id);
+            const userRole = user.roleId
+            if (userRole !== 2) {
+                return res.status(403).json({ error: "user tidak diizinkan mengakses fitur employee" });
             }
             next();
         } catch (err) {

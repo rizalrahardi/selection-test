@@ -19,7 +19,10 @@ module.exports = (sequelize, DataTypes) => {
   Attendance.init({
     clockIn: DataTypes.DATE,
     clockOut: DataTypes.DATE,
-    daySalary: DataTypes.FLOAT
+    daySalary: {
+      type: DataTypes.FLOAT,
+      defaultValue: 0
+    }
   }, {
     sequelize,
     modelName: 'Attendance',
