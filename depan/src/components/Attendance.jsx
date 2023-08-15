@@ -25,7 +25,8 @@ const Attendance = () => {
     const [clockOutTime, setClockOutTime] = useState('');
     const [currentTime, setCurrentTime] = useState(new Date());
     const [clockMode, setClockMode] = useState('clockIn'); // 'clockIn' or 'clockOut'
-    const toast = useToast()
+    const toast = useToast();
+
     useEffect(() => {
         const interval = setInterval(() => {
             setCurrentTime(new Date());
@@ -36,13 +37,13 @@ const Attendance = () => {
         };
     }, []);
 
-    const handleClockInOut = async () => {
+    const handleClockIn = async () => {
         setIsLoading(true);
         try {
             const token = localStorage.getItem('token');
             const currentTime = new Date();
-            console.log("ini current time", currentTime)
-            const apiUrl = clockMode === 'clockIn' ? 'http://localhost:8000/api/attendance/in' : 'http://localhost:8000/api/attendance/out';
+            console.log("ini current time", currentTime);
+            const apiUrl = 'http://localhost:8000/api/attendance/in';
 
             const response = await axios.post(apiUrl, { currentTime: currentTime }, {
                 headers: {
@@ -51,13 +52,8 @@ const Attendance = () => {
             });
 
             const { attendance } = response.data;
-            if (clockMode === 'clockIn') {
-                setClockInTime(currentTime.toLocaleTimeString());
-                setClockMode('clockOut');
-            } else {
-                setClockOutTime(currentTime.toLocaleTimeString());
-                setClockMode('clockIn');
-            }
+            setClockInTime(currentTime.toLocaleTimeString());
+            setClockMode('clockOut');
             onOpen();
         } catch (error) {
             toast({
@@ -65,8 +61,38 @@ const Attendance = () => {
                 status: 'error',
                 duration: 3000,
                 isClosable: true
-            })
-            console.error('Clock in/out error:', error);
+            });
+            console.error('Clock in error:', error);
+        }
+        setIsLoading(false);
+    };
+
+    const handleClockOut = async () => {
+        setIsLoading(true);
+        try {
+            const token = localStorage.getItem('token');
+            const currentTime = new Date();
+            console.log("ini current time", currentTime);
+            const apiUrl = 'http://localhost:8000/api/attendance/out';
+
+            const response = await axios.post(apiUrl, { currentTime: currentTime }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const { attendance } = response.data;
+            setClockOutTime(currentTime.toLocaleTimeString());
+            setClockMode('clockIn');
+            onOpen();
+        } catch (error) {
+            toast({
+                title: error.response.data.message,
+                status: 'error',
+                duration: 3000,
+                isClosable: true
+            });
+            console.error('Clock out error:', error);
         }
         setIsLoading(false);
     };
@@ -85,14 +111,14 @@ const Attendance = () => {
                         <Button
                             colorScheme="green"
                             isLoading={isLoading && clockMode === 'clockIn'}
-                            onClick={handleClockInOut}
+                            onClick={handleClockIn}
                         >
                             Clock In
                         </Button>
                         <Button
                             colorScheme="red"
                             isLoading={isLoading && clockMode === 'clockOut'}
-                            onClick={handleClockInOut}
+                            onClick={handleClockOut}
                         >
                             Clock Out
                         </Button>
